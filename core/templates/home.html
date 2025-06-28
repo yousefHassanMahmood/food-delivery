@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+
+<body>
+    {% extends "index.html" %}
+    {% load static %}
+
+    {% block title %}Restaurants{% endblock %}
+
+    {% block content %}
+    <div class="container my-4">
+        <h1 class="mb-4">Pick a Restaurant</h1>
+
+        <div class="row">
+            {% for restaurant in restaurants %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ restaurant.name }}</h5>
+                        <p class="card-text">
+                            {{ restaurant.description|truncatechars:100 }}
+                        </p>
+                        <a href="{% url 'core:menu' restaurant.id %}" class="btn btn-primary">
+                            View Menu
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No restaurants available right now.</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% endblock %}
+
+</body>
+
+</html>
