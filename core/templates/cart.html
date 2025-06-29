@@ -1,0 +1,78 @@
+{% extends "index.html" %}
+{% block title %}Your Cart{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">Shopping Cart</h1>
+
+  {% if cart_items %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th class="text-center">Qty</th>
+          <th class="text-end">Unit Price</th>
+          <th class="text-end">Subtotal</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in cart_items %}
+          <tr>
+            <td>{{ entry.item.name }}</td>
+
+            {# Update Quantity Form #}
+            <td class="text-center">
+              <form method="post" action="{% url 'core:update_cart_item' %}" class="d-inline-flex">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" value="{{ entry.item.id }}">
+                <input type="number"
+                       name="quantity"
+                       value="{{ entry.quantity }}"
+                       min="1"
+                       class="form-control text-center"
+                       style="width: 70px;">
+                <button type="submit" class="btn btn-sm btn-secondary ms-2">
+                  Update
+                </button>
+              </form>
+            </td>
+
+            <td class="text-end">₪{{ entry.item.price }}</td>
+            <td class="text-end">₪{{ entry.subtotal }}</td>
+
+            {# Delete Form #}
+            <td class="text-center">
+              <form method="post"
+                    action="{% url 'core:delete_cart_item' %}"
+                    onsubmit="return confirm('Remove {{ entry.item.name }} from cart?');">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" value="{{ entry.item.id }}">
+                <button type="submit" class="btn btn-sm btn-danger">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3" class="text-end">Total:</th>
+          <th class="text-end">₪{{ total_price }}</th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+
+    {# Proceed to Checkout #}
+    <form method="post" action="{% url 'core:checkout' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">
+        Proceed to Checkout
+      </button>
+    </form>
+  {% else %}
+    <p>Your cart is empty.</p>
+    <a href="{% url 'core:home' %}" class="btn btn-link">Browse Restaurants</a>
+  {% endif %}
+{% endblock %}

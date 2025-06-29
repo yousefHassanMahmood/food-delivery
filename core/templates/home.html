@@ -1,44 +1,167 @@
-<!DOCTYPE html>
-<html lang="en">
+{# core/templates/home.html #}
+{% extends "index.html" %}
+{% block title %}Dashboard{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-</head>
+{% block content %}
+<div class="container my-4">
 
-<body>
-    {% extends "index.html" %}
-    {% load static %}
+  {% if current_user.user_type == 2 %}
+    {# --------- Restaurant Owner View --------- #}
+    <h1 class="mb-3">Welcome, {{ current_user.first_name }}!</h1>
+    {% if restaurant %}
+      <p>Your Restaurant: <strong>{{ restaurant.name }}</strong></p>
 
-    {% block title %}Restaurants{% endblock %}
+      <!-- Add New -->
+      <button id="addBtn"
+              class="btn btn-success mb-4"
+              data-bs-toggle="modal"
+              data-bs-target="#menuItemModal">
+        + Add New Menu Item
+      </button>
 
-    {% block content %}
-    <div class="container my-4">
-        <h1 class="mb-4">Pick a Restaurant</h1>
+      <h2>Your Menu</h2>
+      <div class="row">
+        {% for item in items %}
+          <div class="col-md-4 mb-3">
+            <div class="card h-100 position-relative">
+              {% if item.image_url %}
+                <img src="{{ item.image_url }}"
+                     class="card-img-top"
+                     alt="{{ item.name }}"
+                     style="object-fit: cover; height: 200px;">
+              {% endif %}
 
-        <div class="row">
-            {% for restaurant in restaurants %}
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ restaurant.name }}</h5>
-                        <p class="card-text">
-                            {{ restaurant.description|truncatechars:100 }}
-                        </p>
-                        <a href="{% url 'core:menu' restaurant.id %}" class="btn btn-primary">
-                            View Menu
-                        </a>
-                    </div>
-                </div>
+              {# DELETE BUTTON always visible #}
+              <form method="post"
+                    action="{% url 'core:delete_menu_item' %}"
+                    class="position-absolute top-0 end-0 m-2"
+                    onsubmit="return confirm('Are you sure you want to delete “{{ item.name }}”?');">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+                <button type="submit" class="btn btn-sm btn-danger p-1" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </form>
+
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ item.name }}</h5>
+                <p class="card-text">{{ item.description|default:"No description" }}</p>
+                <p class="card-text mt-auto"><strong>₪{{ item.price }}</strong></p>
+                <button type="button"
+                        class="btn btn-sm btn-primary editBtn mt-2"
+                        data-id="{{ item.id }}"
+                        data-name="{{ item.name|escapejs }}"
+                        data-description="{{ item.description|escapejs }}"
+                        data-price="{{ item.price }}"
+                        data-image-url="{{ item.image_url|default_if_none:''|escapejs }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#menuItemModal">
+                  Edit
+                </button>
+              </div>
             </div>
-            {% empty %}
-            <p>No restaurants available right now.</p>
-            {% endfor %}
+          </div>
+        {% empty %}
+          <p>You haven’t added any menu items yet.</p>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p><em>You don’t have a restaurant yet.</em></p>
+    {% endif %}
+
+  {% else %}
+    {# --------- Customer View --------- #}
+    <h1 class="mb-4">Pick a Restaurant</h1>
+    <div class="row">
+      {% for restaurant in restaurants %}
+        <div class="col-md-4 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">{{ restaurant.name }}</h5>
+              <p class="card-text">{{ restaurant.description|truncatechars:100 }}</p>
+              <a href="{% url 'core:menu' restaurant.id %}" class="btn btn-primary">
+                View Menu
+              </a>
+            </div>
+          </div>
         </div>
+      {% empty %}
+        <p>No restaurants available right now.</p>
+      {% endfor %}
     </div>
-    {% endblock %}
+  {% endif %}
 
-</body>
+</div>
 
-</html>
+{# --------- Modal for Add / Edit MenuItem --------- #}
+<div class="modal fade" id="menuItemModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="post" action="{% url 'core:add_or_edit_menu_item' %}" id="menuItemForm">
+      {% csrf_token %}
+      <input type="hidden" name="item_id" id="menuItemId">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="menuItemModalLabel">Add Menu Item</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="menuItemName" class="form-label">Name</label>
+            <input type="text" name="name" id="menuItemName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="menuItemDescription" class="form-label">Description</label>
+            <textarea name="description" id="menuItemDescription" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="menuItemPrice" class="form-label">Price</label>
+            <input type="number" name="price" id="menuItemPrice" class="form-control" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label for="menuItemImageUrl" class="form-label">Image URL</label>
+            <input type="url" name="image_url" id="menuItemImageUrl" class="form-control"
+                   placeholder="https://example.com/image.jpg">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var menuModal = document.getElementById('menuItemModal');
+  menuModal.addEventListener('show.bs.modal', function (event) {
+    var trigger = event.relatedTarget;
+    var title = menuModal.querySelector('#menuItemModalLabel');
+    var idFld = document.getElementById('menuItemId');
+    var nameFld = document.getElementById('menuItemName');
+    var descFld = document.getElementById('menuItemDescription');
+    var priceFld = document.getElementById('menuItemPrice');
+    var imgFld = document.getElementById('menuItemImageUrl');
+
+    if (trigger.id === 'addBtn') {
+      title.textContent = 'Add Menu Item';
+      idFld.value = '';
+      nameFld.value = '';
+      descFld.value = '';
+      priceFld.value = '';
+      imgFld.value = '';
+    } else {
+      title.textContent = 'Edit Menu Item';
+      idFld.value = trigger.getAttribute('data-id') || '';
+      nameFld.value = trigger.getAttribute('data-name') || '';
+      descFld.value = trigger.getAttribute('data-description') || '';
+      priceFld.value = trigger.getAttribute('data-price') || '';
+      imgFld.value = trigger.getAttribute('data-image-url') || '';
+    }
+  });
+});
+</script>
+{% endblock %}
