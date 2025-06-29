@@ -2,70 +2,110 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-  <h2>Create Account</h2>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+  <div class="card shadow-sm w-100" style="max-width: 500px;">
+    <div class="card-body">
+      <h3 class="card-title text-center mb-4">Create Account</h3>
 
+      {# Display only the newest message, choosing color by tags #}
+      {% if messages %}
+        {% for m in messages %}
+          {% if forloop.last %}
+            {% if 'error' in m.tags %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {% elif 'success' in m.tags %}
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {% else %}
+              <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {% endif %}
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
 
-  <form method="post" action="{% url 'core:signup' %}">
-    {% csrf_token %}
+      <form method="post" action="{% url 'core:signup' %}">
+        {% csrf_token %}
 
-    <!-- User basic info -->
-    <div class="mb-3">
-      <label for="first_name" class="form-label">First name</label>
-      <input id="first_name" name="first_name" type="text" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="last_name" class="form-label">Last name</label>
-      <input id="last_name" name="last_name" type="text" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
-      <input id="email" name="email" type="email" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input id="password" name="password" type="password" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="confirm_pw" class="form-label">Confirm Password</label>
-      <input id="confirm_pw" name="confirm_pw" type="password" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="address" class="form-label">Address</label>
-      <input id="address" name="address" type="text" class="form-control">
-    </div>
-    <div class="mb-3">
-      <label for="phone" class="form-label">Phone</label>
-      <input id="phone" name="phone" type="tel" class="form-control">
-    </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="first_name" class="form-label">First Name</label>
+            <input id="first_name" name="first_name" type="text" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input id="last_name" name="last_name" type="text" class="form-control" required>
+          </div>
+        </div>
 
-   <!-- user fields… -->
-    <div class="mb-3">
-      <label for="user_type">Account Type</label>
-      <select id="user_type" name="user_type" class="form-select">
-        <option value="1" selected>Customer</option>
-        <option value="2">Restaurant</option>
-      </select>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input id="email" name="email" type="email" class="form-control" placeholder="you@example.com" required>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input id="password" name="password" type="password" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="confirm_pw" class="form-label">Confirm Password</label>
+            <input id="confirm_pw" name="confirm_pw" type="password" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="address" class="form-label">Address</label>
+          <input id="address" name="address" type="text" class="form-control" placeholder="123 Main St">
+        </div>
+        <div class="mb-3">
+          <label for="phone" class="form-label">Phone</label>
+          <input id="phone" name="phone" type="tel" class="form-control" placeholder="(123) 456-7890">
+        </div>
+
+        <div class="mb-3">
+          <label for="user_type" class="form-label">Account Type</label>
+          <select id="user_type" name="user_type" class="form-select">
+            <option value="1" selected>Customer</option>
+            <option value="2">Restaurant</option>
+          </select>
+        </div>
+
+        <div id="restaurantFields" class="border rounded p-3 mb-3" style="display:none;">
+          <h5 class="mb-3">Restaurant Info</h5>
+          <div class="mb-3">
+            <label for="restaurant_name" class="form-label">Restaurant Name</label>
+            <input id="restaurant_name" name="restaurant_name" type="text" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="restaurant_description" class="form-label">Description</label>
+            <textarea id="restaurant_description" name="restaurant_description"
+              class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Sign Up</button>
+      </form>
+
+      <p class="text-center mt-3 mb-0">
+        Already have an account?
+        <a href="{% url 'core:login' %}">Log in</a>
+      </p>
     </div>
+  </div>
+</div>
+{% endblock %}
 
-    <div id="restaurantFields" class="mb-3" style="display:none;">
-      <label for="restaurant_name">Restaurant Name</label>
-      <input id="restaurant_name" name="restaurant_name" type="text" class="form-control">
-      <label for="restaurant_description" class="mt-2">Description</label>
-      <textarea id="restaurant_description" name="restaurant_description"
-                class="form-control" rows="3"></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Sign Up</button>
-  </form>
-
-  <script>
+{% block extra_scripts %}
+<script>
   function toggleRestFields() {
     var isRest = document.getElementById('user_type').value === '2';
     document.getElementById('restaurantFields').style.display = isRest ? 'block' : 'none';
   }
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('user_type').addEventListener('change', toggleRestFields);
     toggleRestFields();
   });
-  </script>
+</script>
 {% endblock %}
