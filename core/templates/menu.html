@@ -2,26 +2,76 @@
 {% block title %}{{ restaurant.name }} Menu{% endblock %}
 
 {% block content %}
-  <h1 class="mb-4">{{ restaurant.name }}</h1>
-  <p class="mb-4">{{ restaurant.description }}</p>
-  <!-- existing menu items… -->
+<h1 class="mb-2">{{ restaurant.name }}</h1>
+<p class="mb-4">{{ restaurant.description }}</p>
 
-  <hr>
-  <h2 class="mt-5">Customer Reviews</h2>
+{# 1) Show average rating as stars #}
+<div class="mb-4">
+  {% with total=restaurant.reviews.count %}
+  {% if total %}
+  {% comment %} full stars = floor(avg_rating) {% endcomment %}
+  {% with full=restaurant.avg_rating|floatformat:0 %}
+  {% for i in rating_choices %}
+  {% if i <= full %} <i class="bi bi-star-fill text-warning"></i>
+    {% else %}
+    <i class="bi bi-star text-muted"></i>
+    {% endif %}
+    {% endfor %}
+    <small class="text-muted">({{ total }} review{{ total|pluralize }})</small>
+    {% endwith %}
+    {% else %}
+    <span class="text-muted">No reviews yet</span>
+    {% endif %}
+    {% endwith %}
+</div>
 
-  <!-- Review form -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5 class="card-title">Leave a Review</h5>
-      {% if messages %}
-        {% for m in messages %}
-          {% if forloop.last %}
-            <div class="alert alert-{% if 'error' in m.tags %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
-              {{ m }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-          {% endif %}
-        {% endfor %}
+{# 2) Menu items grid #}
+<div class="row">
+  {% for item in menu_items %}
+  <div class="col-md-4 mb-3">
+    <div class="card h-100">
+      {% if item.image_url %}
+      <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.name }}" style="object-fit:cover;height:200px;">
+      {% endif %}
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">{{ item.name }}</h5>
+        <p class="card-text">{{ item.description|default:"No description" }}</p>
+        <p class="card-text mt-auto"><strong>₪{{ item.price }}</strong></p>
+
+        <div class="d-flex align-items-center mt-2">
+          <input type="number" class="form-control me-2 quantity-input" data-item-id="{{ item.id }}" value="1" min="1"
+            style="width: 80px;">
+          <button class="btn btn-primary add-to-cart-btn" data-item-id="{{ item.id }}">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>No menu items found for this restaurant.</p>
+  {% endfor %}
+</div>
+
+<hr class="my-5">
+
+{# 3) Leave a review form #}
+<h2 class="mb-3">Leave a Review</h2>
+<div class="card mb-4">
+  <div class="card-body">
+    {% if messages %}
+    {% for m in messages %}
+    {% if forloop.last %}
+    {% if 'error' in m.tags %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {% else %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {% endif %}
+        {{ m }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endif %}
+      {% endfor %}
       {% endif %}
       <form method="post" action="{% url 'core:submit_review' restaurant.id %}">
         {% csrf_token %}
@@ -29,8 +79,8 @@
           <label for="rating" class="form-label">Rating</label>
           <select id="rating" name="rating" class="form-select" required>
             <option value="">Choose…</option>
-            {% for i in "12345" %}
-              <option value="{{ i }}">{{ i }} ⭐</option>
+            {% for i in rating_choices %}
+            <option value="{{ i }}">{{ i }} ⭐</option>
             {% endfor %}
           </select>
         </div>
@@ -43,31 +93,74 @@
     </div>
   </div>
 
-  <!-- List existing reviews -->
+  {# 4) Existing reviews #}
+  <h2 class="mb-3">What Others Are Saying</h2>
   {% if reviews %}
-    {% for review in reviews %}
-      <div class="border rounded p-3 mb-3">
-        <div class="d-flex justify-content-between">
-          <strong>{{ review.user.first_name }}</strong>
-          <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
-        </div>
-        <div class="mb-2">
-          {# Stars: filled vs empty #}
-          {% for star in "12345" %}
-            {% if forloop.counter <= review.rating %}
-              <i class="bi bi-star-fill text-warning"></i>
-            {% else %}
-              <i class="bi bi-star text-muted"></i>
-            {% endif %}
-          {% endfor %}
-        </div>
-        {% if review.comment %}
-          <p>{{ review.comment }}</p>
+  {% for review in reviews %}
+  <div class="border rounded p-3 mb-3">
+    <div class="d-flex justify-content-between">
+      <strong>{{ review.user.first_name }}</strong>
+      <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+    </div>
+    <div class="mb-2">
+      {% for i in rating_choices %}
+      {% if i <= review.rating %} <i class="bi bi-star-fill text-warning"></i>
+        {% else %}
+        <i class="bi bi-star text-muted"></i>
         {% endif %}
-      </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
+    {% if review.comment %}
+    <p>{{ review.comment }}</p>
+    {% endif %}
+  </div>
+  {% endfor %}
   {% else %}
-    <p class="text-muted">No reviews yet. Be the first to review!</p>
+  <p class="text-muted">No reviews yet. Be the first to review!</p>
   {% endif %}
 
-{% endblock %}
+  {% endblock %}
+
+  {% block extra_scripts %}
+  <script>
+    // Helper to read CSRF token
+    function getCookie(name) {
+      let v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return v ? v.pop() : '';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Add-to-cart with quantity
+      document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const itemId = btn.dataset.itemId;
+          const qtyInput = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+          const quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+          const csrftoken = getCookie('csrftoken');
+          const formData = new FormData();
+          formData.append('item_id', itemId);
+          formData.append('quantity', quantity);
+
+          fetch("{% url 'core:add_to_cart' %}", {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': csrftoken,
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData,
+          })
+            .then(r => r.json())
+            .then(data => {
+              if (data.success) {
+                const badge = document.getElementById('cart-count');
+                if (badge) badge.textContent = data.cartCount;
+              } else {
+                alert(data.error || 'Could not add to cart.');
+              }
+            })
+            .catch(() => alert('Error adding to cart.'));
+        });
+      });
+    });
+  </script>
+  {% endblock %}

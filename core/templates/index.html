@@ -1,4 +1,3 @@
-{# core/templates/index.html #}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -7,10 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Food Delivery{% endblock %}</title>
 
+  <!-- Bootstrap CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
+  <!-- Bootstrap Icons -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     rel="stylesheet"
@@ -22,7 +23,6 @@
       <a class="navbar-brand fw-bold" href="{% url 'core:home' %}">
         <i class="bi bi-basket-fill"></i> FoodDelivery
       </a>
-
       <button
         class="navbar-toggler"
         type="button"
@@ -38,16 +38,16 @@
       <div class="collapse navbar-collapse" id="mainNavbar">
         <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a
-              class="nav-link {% if request.path == '/' %}active{% endif %}"
-              href="{% url 'core:home' %}"
-            >Home</a>
+            <a class="nav-link {% if request.path == '/' %}active{% endif %}"
+               href="{% url 'core:home' %}">
+              Home
+            </a>
           </li>
           <li class="nav-item">
-            <a
-              class="nav-link {% if request.path == '/about/' %}active{% endif %}"
-              href="{% url 'core:about' %}"
-            >About Us</a>
+            <a class="nav-link {% if request.path == '/about/' %}active{% endif %}"
+               href="{% url 'core:about' %}">
+              About Us
+            </a>
           </li>
         </ul>
 
@@ -57,22 +57,15 @@
               <a class="nav-link position-relative" href="{% url 'core:cart' %}">
                 <i class="bi bi-cart-fill fs-5"></i>
                 <span class="visually-hidden">Cart</span>
-                <span
-                  id="cart-count"
-                  class="badge bg-danger position-absolute top-0 start-100 translate-middle"
-                >0</span>
+                <span id="cart-count"
+                      class="badge bg-danger position-absolute top-0 start-100 translate-middle">
+                  0
+                </span>
               </a>
             </li>
-
             <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="userMenu"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
+              <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button"
+                 data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle me-1"></i>
                 {{ request.session.user_first_name|default:"User" }}
               </a>
@@ -113,7 +106,25 @@
     </div>
   </main>
 
+  <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Fetch and render cart count on every page load -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch("{% url 'core:cart_count_api' %}", {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const badge = document.getElementById('cart-count');
+        if (badge) badge.textContent = data.cartCount;
+      })
+      .catch(err => console.error('Error loading cart count:', err));
+    });
+  </script>
+
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>
+  

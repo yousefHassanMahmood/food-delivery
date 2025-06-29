@@ -355,7 +355,8 @@ def menu_view(request, id):
     return render(request, 'menu.html', {
         'restaurant': restaurant,
         'menu_items': menu_items,
-        'reviews':    reviews,
+        'reviews': reviews,
+        'rating_choices': range(1, 6),  
     })
 
 
@@ -383,3 +384,8 @@ def submit_review(request, id):
         )
         messages.success(request, "Thanks for your review!")
     return redirect('core:menu', id=id)
+
+def cart_count_api(request):
+    cart = request.session.get('cart', {})
+    total = sum(int(q) for q in cart.values()) if isinstance(cart, dict) else 0
+    return JsonResponse({'cartCount': total})
