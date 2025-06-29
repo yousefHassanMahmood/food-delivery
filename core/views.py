@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from .models import User, Restaurant,MenuItem,Order,OrderItem
+from .models import User, Restaurant,MenuItem,Order,OrderItem,Review
 import bcrypt
 from django.http import JsonResponse
 
@@ -341,7 +341,45 @@ def update_order_status(request):
         order.save()
         messages.success(request, f"Order #{order.id} status updated to {order.get_status_display()}.")
     return redirect('core:tracking')
-
 def about_view(request):
     return render(request, 'about.html')
+def menu_view(request, id):
+    # require login
+    if not request.session.get('user_id'):
+        return redirect('core:login')
 
+    restaurant = get_object_or_404(Restaurant, id=id)
+    menu_items = restaurant.menu_items.all()
+    reviews    = restaurant.reviews.select_related('user').order_by('-created_at')
+
+    return render(request, 'menu.html', {
+        'restaurant': restaurant,
+        'menu_items': menu_items,
+        'reviews':    reviews,
+    })
+
+
+def submit_review(request, id):
+    if request.method == 'POST':
+        user = get_object_or_404(User, id=request.session.get('user_id'))
+        restaurant = get_object_or_404(Restaurant, id=id)
+
+        # Validate rating
+        try:
+            rating = int(request.POST.get('rating', 0))
+            if rating < 1 or rating > 5:
+                raise ValueError()
+        except ValueError:
+            messages.error(request, "Please select a rating between 1 and 5.")
+            return redirect('core:menu', id=id)
+
+        comment = request.POST.get('comment','').strip()
+
+        Review.objects.create(
+            user= user,
+            restaurant= restaurant,
+            rating= rating,
+            comment= comment
+        )
+        messages.success(request, "Thanks for your review!")
+    return redirect('core:menu', id=id)

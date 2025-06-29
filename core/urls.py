@@ -12,7 +12,9 @@ urlpatterns = [
 
     path('',views.home,name='home'),
     
-    path('restaurant/<int:id>/', views.menu_view,name='menu'),
+    path('restaurant/<int:id>/',views.menu_view,name='menu'),
+    path('restaurant/<int:id>/review/',views.submit_review,name='submit_review'),
+    
     path('track/', views.tracking_list, name='tracking'),
     path('track/update-status/', views.update_order_status, name='update_order_status'),
     path('about/',views.about_view,name='about'),
