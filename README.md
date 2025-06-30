@@ -36,20 +36,6 @@ This is a full-stack Django web application for a food delivery platform, featur
    ```bash
    pip install -r requirements.txt
    ```
- **Configure environment variables** (create `.env`)
-
-   ```ini
-   SECRET_KEY=your_django_secret_key
-   DEBUG=True
-   DB_NAME=food_delivery_db
-   DB_USER=root
-   DB_PASSWORD=yourpassword
-   DB_HOST=localhost
-   DB_PORT=3306
-   ```
-
----
-
 
 
 ## Running the Server
