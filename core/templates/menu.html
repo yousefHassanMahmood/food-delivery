@@ -5,7 +5,6 @@
 <h1 class="mb-2">{{ restaurant.name }}</h1>
 <p class="mb-4">{{ restaurant.description }}</p>
 
-{# 1) Show average rating as stars #}
 <div class="mb-4">
   {% with total=restaurant.reviews.count %}
   {% if total %}
@@ -25,7 +24,6 @@
     {% endwith %}
 </div>
 
-{# 2) Menu items grid #}
 <div class="row">
   {% for item in menu_items %}
   <div class="col-md-4 mb-3">
@@ -55,7 +53,6 @@
 
 <hr class="my-5">
 
-{# 3) Leave a review form #}
 <h2 class="mb-3">Leave a Review</h2>
 <div class="card mb-4">
   <div class="card-body">
@@ -93,7 +90,6 @@
     </div>
   </div>
 
-  {# 4) Existing reviews #}
   <h2 class="mb-3">What Others Are Saying</h2>
   {% if reviews %}
   {% for review in reviews %}

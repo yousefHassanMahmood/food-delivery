@@ -20,7 +20,6 @@
           <tr>
             <td>{{ entry.item.name }}</td>
 
-            {# Update Quantity Form #}
             <td class="text-center">
               <form method="post" action="{% url 'core:update_cart_item' %}" class="d-inline-flex">
                 {% csrf_token %}
@@ -40,7 +39,6 @@
             <td class="text-end">₪{{ entry.item.price }}</td>
             <td class="text-end">₪{{ entry.subtotal }}</td>
 
-            {# Delete Form #}
             <td class="text-center">
               <form method="post"
                     action="{% url 'core:delete_cart_item' %}"
@@ -64,7 +62,6 @@
       </tfoot>
     </table>
 
-    {# Proceed to Checkout #}
     <form method="post" action="{% url 'core:checkout' %}">
       {% csrf_token %}
       <button type="submit" class="btn btn-primary">

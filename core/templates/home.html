@@ -1,4 +1,3 @@
-{# core/templates/home.html #}
 {% extends "index.html" %}
 {% block title %}Dashboard{% endblock %}
 
@@ -6,7 +5,6 @@
 <div class="container my-4">
 
   {% if current_user.user_type == 2 %}
-    {# --------- Restaurant Owner View --------- #}
     <h1 class="mb-3">Welcome, {{ current_user.first_name }}!</h1>
     {% if restaurant %}
       <p>Your Restaurant: <strong>{{ restaurant.name }}</strong></p>
@@ -31,7 +29,6 @@
                      style="object-fit: cover; height: 200px;">
               {% endif %}
 
-              {# DELETE BUTTON always visible #}
               <form method="post"
                     action="{% url 'core:delete_menu_item' %}"
                     class="position-absolute top-0 end-0 m-2"
@@ -70,7 +67,6 @@
     {% endif %}
 
   {% else %}
-    {# --------- Customer View --------- #}
     <h1 class="mb-4">Pick a Restaurant</h1>
     <div class="row">
       {% for restaurant in restaurants %}
@@ -93,7 +89,6 @@
 
 </div>
 
-{# --------- Modal for Add / Edit MenuItem --------- #}
 <div class="modal fade" id="menuItemModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form method="post" action="{% url 'core:add_or_edit_menu_item' %}" id="menuItemForm">

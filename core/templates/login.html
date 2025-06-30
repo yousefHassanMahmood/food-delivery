@@ -7,7 +7,6 @@
     <div class="card-body">
       <h3 class="card-title text-center mb-4">Log In</h3>
 
-      {# Display only the newest message as a red alert #}
       {% if messages %}
         {% for m in messages %}
           {% if forloop.last %}
