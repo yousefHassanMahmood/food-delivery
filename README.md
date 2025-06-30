@@ -21,7 +21,7 @@ This is a full-stack Django web application for a food delivery platform, featur
  **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/food-delivery.git
+   git clone https://github.com/yousefHassanMahmood/food-delivery.git
    cd food-delivery
    ```
  **Create and activate a virtual environment**
