@@ -159,7 +159,6 @@ def add_to_cart(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
 
-    # (Optional) ensure logged in
     user_id = request.session.get('user_id')
     if not user_id:
         return JsonResponse({'success': False, 'error': 'Not authenticated'}, status=401)
