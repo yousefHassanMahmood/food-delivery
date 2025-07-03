@@ -10,7 +10,7 @@ This is a full-stack Django web application for a food delivery platform, featur
 * **Reviews**: Customers can leave 1–5 star reviews and comments; reviews displayed with star visualization.
 * **Security & Validation**: CSRF protection, form validation in views and model managers to prevent common vulnerabilities.
 * **Backend**: Django,database, custom user model with additional fields (address, phone, user\_type).
-* **AJAX/API**: API endpoints for cart count and add-to-cart actions, enabling seamless client-side updates.
+
 
 ---
 
