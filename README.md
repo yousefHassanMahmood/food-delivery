@@ -8,7 +8,6 @@ This is a full-stack Django web application for a food delivery platform, featur
 * **Shopping Cart**: Dynamic cart persisted in session, with client-side updates and server-side API fallback.
 * **Order Management**: Checkout creates an order (Pending), customer can view all orders; restaurant owners can update order status.
 * **Reviews**: Customers can leave 1–5 star reviews and comments; reviews displayed with star visualization.
-* **Responsive Design**: Bootstrap 5 layout and components ensure mobile-friendly pages.
 * **Security & Validation**: CSRF protection, form validation in views and model managers to prevent common vulnerabilities.
 * **Backend**: Django,database, custom user model with additional fields (address, phone, user\_type).
 * **AJAX/API**: API endpoints for cart count and add-to-cart actions, enabling seamless client-side updates.
